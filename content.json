@@ -1,0 +1,20 @@
+[
+    {
+        "id": "1",
+        "name": "Computer",
+        "price": "5",
+        "description": "A good computer",
+        "createdDate": "2016-10-30T18:25:43.511Z",
+        "endDate": "2016-12-30T18:25:43.511Z",
+        "quantity": "20"
+    },
+    {
+        "id": "2",
+        "name": "Water bottle",
+        "price": "500",
+        "description": "Straight from the himalayas",
+        "createdDate": "2016-10-30T18:25:43.511Z",
+        "endDate": "2016-12-30T18:25:43.511Z",
+        "quantity": "1"
+    }
+]

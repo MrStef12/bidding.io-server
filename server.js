@@ -3,7 +3,10 @@ console.log("Starting Bidding.io server...");
 /// ----------------- GENERAL ----------------- ///
 
 var fs = require("fs");
-var http = require("http");
+var app = require("express")();
+var http = require("http").Server(app);
+var io = require('socket.io')(http);
+
 var contents = fs.readFileSync("content.json");
 var contentsJson = JSON.parse(contents);
 
@@ -22,25 +25,28 @@ send_header = function (response, responseCode) {
 
 handler_get = function (request, response) {
     send_header(response, 200);
-    if (request.url == "/auctions") {
-        response.end(JSON.stringify(contentsJson));
-    } else {
-        response.end("{}");
-    }
+    response.end(JSON.stringify(contentsJson));
 };
 
-dispatch = {
-    'GET': handler_get
-};
-
-var server = http.createServer(function (request, response) {
-    console.log("REST - " + request['method'] + " " + request.url);
-    dispatch[request['method']](request, response);
-});
-
-server.listen(PORT, function () {
-    console.log("REST - Listening on http://localhost:%s", PORT);
+app.get("/auctions", function (request, response) {
+    console.log("REST - GET " + request.url);
+    handler_get(request, response);
 });
 
 /// ----------------- WEBSOCKET SERVER ----------------- ///
 
+contentsJson.forEach((auction) => {
+    io.of("/auction/"+auction.id)
+    .on('connection', function(socket) {
+        console.log('a user connected for auction id '+auction.id);
+        socket.on('disconnect', function () {
+            console.log('user disconnected for auction id '+auction.id);
+        });
+    });
+}, this);
+
+/// ----------------- START SERVER ----------------- ///
+
+http.listen(PORT, function () {
+    console.log("Listening on http://localhost:%s", PORT);
+});

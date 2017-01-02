@@ -36,11 +36,25 @@ app.get("/auctions", function (request, response) {
 /// ----------------- WEBSOCKET SERVER ----------------- ///
 
 contentsJson.forEach((auction) => {
-    io.of("/auction/"+auction.id)
+    var auctionIO = io
+    .of("/auction/"+auction.id)
     .on('connection', function(socket) {
-        console.log('a user connected for auction id '+auction.id);
+        console.log('WS - a user connected for auction id '+auction.id);
+        socket.emit("auctionInfo", auction);
+
+        socket.on("placeBid", function(bid) {
+            console.log("WS - Got bid of "+ bid + " from auction "+auction.id);
+            if(bid > auction.price) {
+                console.log("WS - Accepted bid. Destributing new price.");
+                auction.price = bid;
+                auctionIO.emit("priceUpdate", auction.price);
+            } else {
+                console.log("WS - Declined bid. Reason: Lower than current bid.");
+            }
+        });
+
         socket.on('disconnect', function () {
-            console.log('user disconnected for auction id '+auction.id);
+            console.log('WS - user disconnected for auction id '+auction.id);
         });
     });
 }, this);

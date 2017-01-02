@@ -49,7 +49,7 @@ contentsJson.forEach((auction) => {
                 auction.price = bid;
                 auctionIO.emit("priceUpdate", auction.price);
             } else {
-                console.log("WS - Declined bid. Reason: Lower than current bid.");
+                console.log("WS - Declined bid. Reason: Lower or equal to current bid.");
             }
         });
 

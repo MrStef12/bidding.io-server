@@ -12,6 +12,12 @@ var contentsJson = JSON.parse(contents);
 
 const PORT = 9998;
 
+function log(method, message) {
+    var now = new Date();
+    var timestamp = now.toLocaleDateString() + " " + now.toLocaleTimeString();
+    console.log("["+timestamp+"] ["+method+"] - "+message);
+}
+
 /// ----------------- REST SERVER ----------------- ///
 
 send_header = function (response, responseCode) {
@@ -20,7 +26,7 @@ send_header = function (response, responseCode) {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET'
     });
-    console.log("REST - response code " + responseCode);
+    log("REST", "response code " + responseCode);
 }
 
 handler_get = function (request, response) {
@@ -29,7 +35,7 @@ handler_get = function (request, response) {
 };
 
 app.get("/auctions", function (request, response) {
-    console.log("REST - GET " + request.url);
+    log("REST", "GET " + request.url);
     handler_get(request, response);
 });
 
@@ -39,22 +45,22 @@ contentsJson.forEach((auction) => {
     var auctionIO = io
     .of("/auction/"+auction.id)
     .on('connection', function(socket) {
-        console.log('WS - a user connected for auction id '+auction.id);
+        log(" WS ", 'a user connected for auction id '+auction.id);
         socket.emit("auctionInfo", auction);
 
         socket.on("placeBid", function(bid) {
-            console.log("WS - Got bid of "+ bid + " from auction "+auction.id);
+            log(" WS ", "Got bid of "+ bid + " from auction "+auction.id);
             if(bid > auction.price) {
-                console.log("WS - Accepted bid. Destributing new price.");
+                log(" WS ", "Accepted bid. Destributing new price.");
                 auction.price = bid;
                 auctionIO.emit("priceUpdate", auction.price);
             } else {
-                console.log("WS - Declined bid. Reason: Lower or equal to current bid.");
+                log(" WS ", "Declined bid. Reason: Lower or equal to current bid.");
             }
         });
 
         socket.on('disconnect', function () {
-            console.log('WS - user disconnected for auction id '+auction.id);
+            log(" WS ", 'user disconnected for auction id '+auction.id);
         });
     });
 }, this);
@@ -62,5 +68,5 @@ contentsJson.forEach((auction) => {
 /// ----------------- START SERVER ----------------- ///
 
 http.listen(PORT, function () {
-    console.log("Listening on http://localhost:%s", PORT);
+    log("GNRL", "Listening on http://localhost:%s", PORT);
 });

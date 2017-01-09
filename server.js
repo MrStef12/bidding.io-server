@@ -68,5 +68,5 @@ contentsJson.forEach((auction) => {
 /// ----------------- START SERVER ----------------- ///
 
 http.listen(PORT, function () {
-    log("GNRL", "Listening on http://localhost:%s", PORT);
+    log("GNRL", "Listening on http://localhost:"+PORT);
 });
